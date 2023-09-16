@@ -69,7 +69,7 @@ class ContaBancaria {
     }
   }
   
-  // Exemplo de uso das classes
+  // Exemplo 
   const contaCorrente = new ContaCorrente("001", "12345", 1000, 2000);
   const contaPoupanca = new ContaPoupanca("002", "67890", 5000);
   const contaUniversitaria = new ContaUniversitaria("003", "54321", 1000);
