@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conta Bancária</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="saldoGrafico">
+        <canvas id="saldoChart" width="400" height="200"></canvas>
+    </div>
+    <div id="historicoGrafico">
+        <canvas id="historicoChart" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        var saldo = 100;
+        const historicoTransacoes = [];
+
+        function menu() {
+            var opcao = Number(prompt(
+                'Bem vindo/a ao menu da sua conta bancária!\n' +
+                '1 - Depositar\n' +
+                '2 - Sacar\n' +
+                '3 - Ver saldo\n' +
+                '4 - Histórico de transações\n' +
+                '5 - Sair\n' +
+                'Selecione a opção desejada: '
+            ));
+            return opcao;
+        }
+
+        function depositar() {
+            var valor = Number.parseFloat(prompt('Digite o valor: '));
+            if (isNaN(valor) || valor <= 0) {
+                alert('Por favor, digite um valor válido.');
+                return;
+            }
+            alert('Valor de R$' + valor + ' depositado com sucesso!');
+            saldo += valor;
+            historicoTransacoes.push({ forma: 'Depósito', valor, data: new Date() });
+            updateCharts();
+            alert('Seu saldo atual é de R$' + saldo);
+        }
+
+        function sacar() {
+            var valor = Number.parseFloat(prompt('Digite o valor: '));
+            if (isNaN(valor) || valor <= 0) {
+                alert('Por favor, digite um valor válido.');
+                return;
+            }
+            if (saldo < valor) {
+                alert('Saldo insuficiente.');
+                return;
+            }
+            alert('Valor de R$' + valor + ' sacado com sucesso!');
+            saldo -= valor;
+            historicoTransacoes.push({ forma: 'Saque', valor, data: new Date() });
+            updateCharts();
+            alert('Seu saldo atual é de R$' + saldo);
+        }
+
+        function verSaldo() {
+            alert('Seu saldo é de R$' + saldo);
+        }
+
+        function formatarData(data) {
+            const dia = data.getDate();
+            const mes = data.getMonth() + 1;
+            const ano = data.getFullYear();
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        function histotrans() {
+            var historico = '';
+            for (const transacao of historicoTransacoes) {
+                const dataFormatada = formatarData(transacao.data);
+                historico += `${transacao.forma}: R$${transacao.valor} em ${dataFormatada}\n`;
+            }
+            alert(historico);
+        }
+
+        function updateCharts() {
+            // Atualize os gráficos aqui usando Chart.js
+            updateSaldoChart();
+            updateHistoricoChart();
+        }
+
+        function updateSaldoChart() {
+            var labels = historicoTransacoes.map(function (transacao) {
+                return formatarData(transacao.data);
+            });
+            var data = historicoTransacoes.reduce(function (saldoAcumulado, transacao) {
+                saldoAcumulado += transacao.forma === 'Depósito' ? transacao.valor : -transacao.valor;
+                return saldoAcumulado;
+            }, saldo);
+            var datasets = [{
+                label: 'Saldo ao longo do tempo',
+                data: Array(historicoTransacoes.length).fill(data),
+                borderColor: 'steelblue',
+                fill: false,
+            }];
+
+            var ctx = document.getElementById('saldoChart').getContext('2d');
+            var saldoChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets,
+                },
+            });
+        }
+
+        function updateHistoricoChart() {
+            var labels = historicoTransacoes.map(function (transacao) {
+                return formatarData(transacao.data);
+            });
+            var data = historicoTransacoes.map(function (transacao) {
+                return transacao.valor;
+            });
+            var backgroundColors = historicoTransacoes.map(function (transacao) {
+                return transacao.forma === 'Depósito' ? 'green' : 'red';
+            });
+
+            var ctx = document.getElementById('historicoChart').getContext('2d');
+            var historicoChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Histórico de Transações',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                    }],
+                },
+            });
+        }
+
+        var opcaoMenu = 0;
+        while (opcaoMenu !== 5) {
+            opcaoMenu = menu();
+
+            switch (opcaoMenu) {
+                case 1:
+                    depositar();
+                    break;
+                case 2:
+                    sacar();
+                    break;
+                case 3:
+                    verSaldo();
+                    break;
+                case 4:
+                    histotrans();
+                    break;
+                case 5:
+                    alert('Saindo...\nVocê saiu do programa.');
+                    break;
+                default:
+                    alert('Por favor, escolha um número de 1 a 5.');
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
+
